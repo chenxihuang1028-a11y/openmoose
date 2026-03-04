@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenMoose — Enterprise AI Collaboration Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===================== DESIGN SYSTEM ===================== */
+    :root {
+      --void:      #030305;
+      --void-1:    #0a0a10;
+      --void-2:    #111118;
+      --flare:     #f4f4f8;
+      --flare-dim: rgba(244,244,248,0.55);
+      --flare-sub: rgba(244,244,248,0.28);
+
+      /* Brand */
+      --red:       #e8604a;
+      --red-l:     #ff8870;
+      --red-d:     #c03a28;
+      --cyan:      #4df5e0;
+      --cyan-d:    #00cfc0;
+
+      /* Light leaks */
+      --leak-warm: rgba(232, 80, 50, 0.22);
+      --leak-cool: rgba(77, 245, 224, 0.12);
+
+      --glass-bg:     rgba(255,255,255,0.025);
+      --glass-border: rgba(255,255,255,0.07);
+      --glass-hover:  rgba(255,255,255,0.05);
+
+      --radius: 16px;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans:  'Inter', system-ui, sans-serif;
+      --mono:  'Space Mono', 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--void);
+      color: var(--flare);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ===================== GRAIN TEXTURE ===================== */
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.07;
+      mix-blend-mode: overlay;
+      animation: grain-shift 4s steps(6) infinite;
+    }
+
+    @keyframes grain-shift {
+      0%   { transform: translate(0, 0); }
+      17%  { transform: translate(-3px, 4px); }
+      33%  { transform: translate(4px, -2px); }
+      50%  { transform: translate(-2px, -4px); }
+      67%  { transform: translate(3px, 3px); }
+      83%  { transform: translate(-4px, 2px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* ===================== LIGHT LEAKS ===================== */
+    .light-leaks {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .leak-warm {
+      position: absolute;
+      width: 90vw; height: 90vw;
+      top: -30vw; right: -20vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--leak-warm), transparent 65%);
+      filter: blur(80px);
+      mix-blend-mode: screen;
+      animation: breathe-warm 18s ease-in-out infinite;
+    }
+
+    .leak-cool {
+      position: absolute;
+      width: 80vw; height: 80vw;
+      bottom: -25vw; left: -15vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--leak-cool), transparent 65%);
+      filter: blur(100px);
+      mix-blend-mode: screen;
+      animation: breathe-cool 22s ease-in-out infinite reverse;
+    }
+
+    @keyframes breathe-warm {
+      0%, 100% { transform: scale(1);    opacity: 0.7; }
+      50%       { transform: scale(1.08); opacity: 1; }
+    }
+    @keyframes breathe-cool {
+      0%, 100% { transform: scale(1);    opacity: 0.6; }
+      50%       { transform: scale(1.06); opacity: 0.9; }
+    }
+
+    /* ===================== CUSTOM CURSOR ===================== */
+    .cursor {
+      position: fixed;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,96,74,0.35), transparent 70%);
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: screen;
+    }
+
+    /* ===================== UTILITIES ===================== */
+    .container { max-width: 1120px; margin: 0 auto; }
+    section { padding: 110px 64px; position: relative; z-index: 2; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: rgba(77,245,224,0.06);
+      border: 1px solid rgba(77,245,224,0.18);
+      border-radius: 99px;
+      padding: 6px 16px;
+      margin-bottom: 24px;
+    }
+
+    .tag-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+      animation: pulse 2.4s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    /* ===================== BUTTONS ===================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 99px;
+      padding: 13px 28px;
+      cursor: none;
+      border: none;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--red-l);
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(232,96,74,0.4);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--flare-dim);
+      border: 1px solid var(--glass-border);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: var(--flare);
+      transform: translateY(-2px);
+    }
+
+    .btn-lg { padding: 16px 36px; font-size: 0.75rem; }
+
+    /* ===================== SCROLL REVEAL ===================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      filter: blur(4px);
+      transition: opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .stagger > * {
+      opacity: 0;
+      transform: translateY(24px);
+      filter: blur(3px);
+      transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+    }
+    .stagger.visible > *:nth-child(1) { opacity:1; transform:none; filter:none; transition-delay:0s; }
+    .stagger.visible > *:nth-child(2) { opacity:1; transform:none; filter:none; transition-delay:0.1s; }
+    .stagger.visible > *:nth-child(3) { opacity:1; transform:none; filter:none; transition-delay:0.2s; }
+    .stagger.visible > *:nth-child(4) { opacity:1; transform:none; filter:none; transition-delay:0.3s; }
+    .stagger.visible > *:nth-child(5) { opacity:1; transform:none; filter:none; transition-delay:0.4s; }
+    .stagger.visible > *:nth-child(6) { opacity:1; transform:none; filter:none; transition-delay:0.5s; }
+
+    /* ===================== NAVBAR ===================== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 64px;
+      background: rgba(3,3,5,0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: background 0.4s;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      width: 32px; height: 32px;
+      object-fit: contain;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 10px rgba(232,96,74,0.6));
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--flare);
+    }
+    .logo-text span { color: var(--cyan); }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--flare-sub);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--flare); }
+
+    .nav-cta { display: flex; gap: 12px; align-items: center; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 130px 64px 80px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 72px 72px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+    }
+
+    .hero-inner {
+      display: flex;
+      align-items: center;
+      gap: 80px;
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .hero-copy { flex: 1; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: rgba(77,245,224,0.05);
+      border: 1px solid rgba(77,245,224,0.2);
+      border-radius: 99px;
+      padding: 7px 18px;
+      margin-bottom: 32px;
+      animation: fade-up 0.8s ease both;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 5vw, 5.2rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--flare);
+      margin-bottom: 28px;
+      animation: fade-up 0.9s 0.1s ease both;
+      white-space: nowrap;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(120deg, var(--red-l), var(--red), var(--cyan));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--flare-dim);
+      line-height: 1.85;
+      max-width: 520px;
+      margin-bottom: 44px;
+      font-weight: 300;
+      animation: fade-up 0.9s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fade-up 0.9s 0.3s ease both;
+    }
+
+    .hero-mascot {
+      flex-shrink: 0;
+      position: relative;
+      width: 420px;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(48px);
+    }
+
+    .mascot-aura {
+      position: absolute;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,96,74,0.2), transparent 65%);
+      animation: breathe-warm 5s ease-in-out infinite;
+      filter: blur(30px);
+    }
+
+    .mascot-aura-cyan {
+      position: absolute;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(77,245,224,0.12), transparent 65%);
+      animation: breathe-cool 7s ease-in-out infinite;
+      filter: blur(40px);
+    }
+
+    .mascot-img {
+      width: 320px; height: 320px;
+      object-fit: contain;
+      position: relative;
+      z-index: 2;
+      animation: float 6s ease-in-out infinite;
+      filter: drop-shadow(0 20px 60px rgba(232,96,74,0.5));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-16px); }
+    }
+
+    .float-chip {
+      position: absolute;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      padding: 10px 18px;
+      backdrop-filter: blur(16px);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.07em;
+      color: rgba(244,244,248,0.75);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: float 6s ease-in-out infinite;
+      white-space: nowrap;
+      z-index: 4;
+    }
+
+    .chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+      flex-shrink: 0;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+    }
+
+    /* ===================== STATS STRIP ===================== */
+    .stats-strip {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0 64px;
+    }
+
+    .stats-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .stat-item {
+      padding: 36px 32px;
+      border-right: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--flare);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .stat-num .accent { color: var(--cyan); }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+    }
+
+    /* ===================== FEATURES ===================== */
+    .features { border-top: 1px solid var(--glass-border); }
+
+    .section-header { margin-bottom: 72px; }
+
+    .section-header h2 {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      font-size: 1rem;
+      color: var(--flare-dim);
+      line-height: 1.8;
+      max-width: 480px;
+      font-weight: 300;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--glass-border);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .feat-card {
+      background: var(--void-1);
+      padding: 40px 36px;
+      transition: background 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feat-card.span2 { grid-column: span 2; }
+
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(232,96,74,0.05), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feat-card:hover { background: var(--void-2); }
+    .feat-card:hover::before { opacity: 1; }
+
+    .feat-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .feat-card:hover .feat-icon {
+      border-color: rgba(77,245,224,0.3);
+      box-shadow: 0 0 18px rgba(77,245,224,0.12);
+    }
+
+    .feat-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+      color: var(--flare);
+    }
+
+    .feat-card p {
+      font-size: 0.88rem;
+      color: var(--flare-sub);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    .feat-card.span2 .feat-inner {
+      display: flex;
+      gap: 36px;
+      align-items: flex-start;
+    }
+
+    .feat-card.span2 .feat-text { flex: 1; }
+
+    .code-preview {
+      flex: 1;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      line-height: 2;
+      color: var(--flare-sub);
+    }
+
+    .code-preview .kw  { color: var(--cyan); }
+    .code-preview .str { color: #ff9c6e; }
+    .code-preview .fn  { color: var(--red-l); }
+    .code-preview .cmt { color: rgba(255,255,255,0.22); }
+    .code-preview .ok  { color: #6bcb77; }
+
+    /* ===================== WORKFLOW ===================== */
+    .workflow { border-top: 1px solid var(--glass-border); }
+
+    .wf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--glass-border);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .wf-card {
+      background: var(--void-1);
+      padding: 44px 36px;
+      transition: background 0.4s;
+    }
+    .wf-card:hover { background: var(--void-2); }
+
+    .wf-num-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .wf-num {
+      font-family: var(--mono);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    .wf-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--red), transparent);
+      opacity: 0.3;
+    }
+
+    .wf-card h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .wf-card p {
+      font-size: 0.87rem;
+      color: var(--flare-sub);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* ===================== TESTIMONIALS ===================== */
+    .testimonials { border-top: 1px solid var(--glass-border); }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .testi-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 32px;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .testi-card:hover {
+      background: var(--glass-hover);
+      border-color: rgba(232,96,74,0.25);
+      transform: translateY(-4px);
+    }
+
+    .testi-quote {
+      font-family: var(--serif);
+      font-size: 1.22rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--flare-dim);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testi-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--void-2);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .testi-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--flare);
+    }
+
+    .testi-role {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+      margin-top: 3px;
+    }
+
+    /* ===================== MARQUEE ===================== */
+    .marquee-section {
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 24px 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      animation: marquee-scroll 40s linear infinite;
+      width: max-content;
+    }
+
+    .marquee-section:hover .marquee-track { animation-play-state: paused; }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+    }
+
+    .marquee-item::before {
+      content: '◆';
+      color: var(--red);
+      font-size: 0.5rem;
+    }
+
+    @keyframes marquee-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ===================== PRICING ===================== */
+    .pricing { border-top: 1px solid var(--glass-border); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .price-card:not(.featured):hover {
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-4px);
+    }
+
+    .price-card.featured {
+      background: rgba(232,96,74,0.06);
+      border-color: rgba(232,96,74,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card.featured::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,96,74,0.12), transparent);
+      pointer-events: none;
+    }
+
+    .featured-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red-l);
+      background: rgba(232,96,74,0.12);
+      border: 1px solid rgba(232,96,74,0.25);
+      border-radius: 99px;
+      padding: 4px 14px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .plan-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
+    .plan-desc { font-size: 0.82rem; color: var(--flare-sub); font-weight: 300; margin-bottom: 24px; }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price .amount {
+      font-family: var(--mono);
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .price-card.featured .amount { color: var(--red-l); }
+
+    .plan-price .period {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--flare-sub);
+    }
+
+    .plan-period-sub {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: var(--flare-sub);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .plan-divider {
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      margin: 20px 0;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      font-size: 0.85rem;
+      color: var(--flare-dim);
+      font-weight: 300;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .plan-features li:last-child { border-bottom: none; }
+
+    .check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(77,245,224,0.3);
+      background: rgba(77,245,224,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.6rem;
+      color: var(--cyan);
+    }
+
+    .price-card.featured .check {
+      border-color: rgba(232,96,74,0.3);
+      background: rgba(232,96,74,0.08);
+      color: var(--red-l);
+    }
+
+    /* ===================== CTA ===================== */
+    .cta-section {
+      border-top: 1px solid var(--glass-border);
+      text-align: center;
+      padding: 140px 64px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,96,74,0.1), transparent 65%);
+      top: -300px; left: 50%;
+      transform: translateX(-50%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-section p {
+      font-size: 1rem;
+      color: var(--flare-dim);
+      max-width: 460px;
+      margin: 0 auto 44px;
+      line-height: 1.85;
+      font-weight: 300;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-dot { opacity: 0.3; }
+    .cta-note {
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 64px 64px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      max-width: 1120px;
+      margin: 0 auto 48px;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: var(--flare-sub);
+      line-height: 1.8;
+      max-width: 220px;
+      margin-top: 14px;
+      font-weight: 300;
+    }
+
+    .footer-col h5 {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+      margin-bottom: 20px;
+    }
+
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col ul li a {
+      font-size: 0.85rem;
+      color: rgba(244,244,248,0.32);
+      text-decoration: none;
+      font-weight: 300;
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--flare); }
+
+    .footer-bottom {
+      border-top: 1px solid var(--glass-border);
+      padding-top: 24px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--flare-sub);
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      section { padding: 72px 24px; }
+      .hero { padding: 110px 24px 60px; }
+      .hero-inner { flex-direction: column; gap: 48px; }
+      .hero-mascot { width: 100%; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feat-card.span2 { grid-column: span 1; }
+      .feat-card.span2 .feat-inner { flex-direction: column; }
+      .wf-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      footer { padding: 48px 24px 32px; }
+      .stats-strip { padding: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== GRAIN ===== -->
+  <svg class="grain" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <!-- ===== LIGHT LEAKS ===== -->
+  <div class="light-leaks">
+    <div class="leak-warm"></div>
+    <div class="leak-cool"></div>
+  </div>
+
+  <!-- ===== CURSOR ===== -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- ===== NAV ===== -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <img src="mascot1.png" alt="OpenMoose" />
+      <span class="logo-text">Open<span>Moose</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#testimonials">Customers</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost" style="padding:9px 20px; font-size:0.62rem;">Log in</a>
+      <a href="#" class="btn btn-primary" style="padding:9px 20px; font-size:0.62rem;">Get started →</a>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <div class="tag-dot"></div>
+          OpenMoose 2.0 · Semantic Enterprise Collaboration Agents — Now Live
+        </div>
+
+        <h1>
+          Enterprise collaboration,<br />
+          <em>semantically aware,</em><br />
+          autonomously driven.
+        </h1>
+
+        <p class="hero-desc">
+          OpenMoose is a semantic-layer enterprise collaboration AI Agents platform. It deeply understands the context of meetings, tasks, and decisions — automatically coordinating cross-team workflows so your organization runs intelligently.
+        </p>
+
+        <div class="hero-btns">
+          <a href="#" class="btn btn-primary btn-lg">Start free 14-day trial</a>
+          <a href="#" class="btn btn-ghost btn-lg">Watch demo ↗</a>
+        </div>
+      </div>
+
+      <div class="hero-mascot">
+        <div class="mascot-aura"></div>
+        <div class="mascot-aura-cyan"></div>
+        <img src="mascot1.png" alt="OpenMoose" class="mascot-img" />
+
+        <!-- top row -->
+        <div class="float-chip" style="top:11%; left:18%; animation-delay:-0.5s;">
+          ✓ SOC2 Certified
+        </div>
+        <div class="float-chip" style="top:6%; right:18%; animation-delay:-3s;">
+          🔒 Encrypted
+        </div>
+
+        <!-- middle row -->
+        <div class="float-chip" style="top:42%; left:-12px; animation-delay:-1.5s;">
+          ⚡ Response &lt; 1s
+        </div>
+        <div class="float-chip" style="top:42%; right:-12px; animation-delay:-5s;">
+          🧠 Semantic AI
+        </div>
+
+        <!-- bottom row -->
+        <div class="float-chip" style="bottom:26%; left:4%; animation-delay:-2.5s;">
+          🔄 Cross-team sync
+        </div>
+        <div class="float-chip" style="bottom:8%; right:4%; animation-delay:-4.5s; padding:14px 20px; border-radius:14px; font-size:0.72rem; line-height:1.6; gap:10px;">
+          <div class="chip-dot"></div>
+          <span>Analyzing cross-team context<br/><span style="opacity:0.5;">7 decisions · 3 teams · 2.1s</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS ===== -->
+  <div class="stats-strip reveal">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-num">500<span class="accent">+</span></div>
+        <div class="stat-label">Enterprise clients</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98<span class="accent">%</span></div>
+        <div class="stat-label">Renewal rate</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10<span class="accent">×</span></div>
+        <div class="stat-label">Collaboration efficiency</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">24<span class="accent">/7</span></div>
+        <div class="stat-label">Agents always on</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MARQUEE ===== -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span class="marquee-item">Semantic Understanding</span>
+      <span class="marquee-item">Cross-team Collaboration</span>
+      <span class="marquee-item">Decision Tracking</span>
+      <span class="marquee-item">Workflow Automation</span>
+      <span class="marquee-item">Org Knowledge Graph</span>
+      <span class="marquee-item">Real-time Context Awareness</span>
+      <span class="marquee-item">Slack Integration</span>
+      <span class="marquee-item">Jira Integration</span>
+      <span class="marquee-item">Confluence Integration</span>
+      <span class="marquee-item">Enterprise Security</span>
+      <span class="marquee-item">On-premise Deployment</span>
+      <span class="marquee-item">SOC2 Certified</span>
+      <!-- duplicate for loop -->
+      <span class="marquee-item">Semantic Understanding</span>
+      <span class="marquee-item">Cross-team Collaboration</span>
+      <span class="marquee-item">Decision Tracking</span>
+      <span class="marquee-item">Workflow Automation</span>
+      <span class="marquee-item">Org Knowledge Graph</span>
+      <span class="marquee-item">Real-time Context Awareness</span>
+      <span class="marquee-item">Slack Integration</span>
+      <span class="marquee-item">Jira Integration</span>
+      <span class="marquee-item">Confluence Integration</span>
+      <span class="marquee-item">Enterprise Security</span>
+      <span class="marquee-item">On-premise Deployment</span>
+      <span class="marquee-item">SOC2 Certified</span>
+    </div>
+  </div>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// Core capabilities</span>
+        <h2>Semantic understanding,<br /><em>driving collaboration.</em></h2>
+        <p>OpenMoose Agents grasp the contextual semantics of enterprise collaboration — automatically sensing task progress, decision chains, and cross-team dependencies.</p>
+      </div>
+
+      <div class="features-grid stagger reveal">
+        <div class="feat-card">
+          <div class="feat-icon">🧠</div>
+          <h3>Semantic-layer context understanding</h3>
+          <p>OpenMoose Agents understand the deep semantics of meeting notes, project histories, and decision rationale — automatically sensing collaboration intent across teams to eliminate information gaps.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🔄</div>
+          <h3>Cross-team workflow automation</h3>
+          <p>Agents automatically detect cross-department dependencies, proactively unblock bottlenecks, and sync progress — no more manual follow-ups.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🗺️</div>
+          <h3>Organizational knowledge graph</h3>
+          <p>Builds a semantic network of projects, decisions, and people — so every Agent acts with full organizational context, not just local data.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">⚡</div>
+          <h3>Real-time collaboration awareness</h3>
+          <p>Continuously monitors team collaboration dynamics, proactively surfaces risks, identifies blockers, and suggests priorities before problems escalate.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🔗</div>
+          <h3>Seamless tool integrations</h3>
+          <p>Deep integration with Slack, Jira, Confluence, and Notion. Agents operate directly inside your existing collaboration stack — no workflow disruption.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🔒</div>
+          <h3>Enterprise-grade security</h3>
+          <p>Optional on-premise deployment, end-to-end encryption, SOC2 certification — meeting the strictest compliance requirements in finance and healthcare.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="workflow" id="how">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// How it works</span>
+        <h2>Three steps to an<br /><em>intelligent organization.</em></h2>
+        <p>No need to change your existing tools. OpenMoose Agents plug into your collaboration stack and start sensing, reasoning, and acting immediately.</p>
+      </div>
+
+      <div class="wf-grid stagger reveal">
+        <div class="wf-card">
+          <div class="wf-num-wrap">
+            <div class="wf-num">01</div>
+            <div class="wf-line"></div>
+          </div>
+          <h4>Connect your stack</h4>
+          <p>Plug in Slack, Jira, Confluence, and more. Agents begin learning your organization's collaboration semantics and contextual structure from day one.</p>
+        </div>
+
+        <div class="wf-card">
+          <div class="wf-num-wrap">
+            <div class="wf-num">02</div>
+            <div class="wf-line"></div>
+          </div>
+          <h4>Configure your Agents</h4>
+          <p>Define specialized Agents for your scenarios — project coordination, cross-department sync, decision tracking. Each Agent develops deep semantic understanding of its domain.</p>
+        </div>
+
+        <div class="wf-card">
+          <div class="wf-num-wrap">
+            <div class="wf-num">03</div>
+            <div class="wf-line"></div>
+          </div>
+          <h4>Agents take the wheel</h4>
+          <p>Agents continuously monitor collaboration signals, infer intent, advance workflows, and push the right information to the right people — automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// Customer stories</span>
+        <h2>Trusted by<br /><em>leading enterprises.</em></h2>
+      </div>
+
+      <div class="testi-grid stagger reveal">
+        <div class="testi-card">
+          <p class="testi-quote">"OpenMoose's semantic understanding blew us away. It automatically identifies which meeting decisions need cross-department follow-through. Project velocity tripled."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">👩‍💼</div>
+            <div>
+              <div class="testi-name">Sarah Chen</div>
+              <div class="testi-role">COO · Series C Tech Company</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <p class="testi-quote">"Cross-functional collaboration was always our Achilles heel. OpenMoose Agents proactively surface dependency blockers before they stall delivery. Communication overhead dropped 60%."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">👨‍💼</div>
+            <div>
+              <div class="testi-name">James Park</div>
+              <div class="testi-role">VP Engineering · Fortune 500</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <p class="testi-quote">"OpenMoose genuinely understands our org's collaboration semantics — it knows which decision impacts which team and routes the right context to the right people. Information silos are gone."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">👩‍💻</div>
+            <div>
+              <div class="testi-name">Mia Torres</div>
+              <div class="testi-role">Chief of Staff · Global Enterprise</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section">
+    <div class="tag reveal" style="margin: 0 auto 32px;">
+      <div class="tag-dot"></div>
+      Get started
+    </div>
+    <h2 class="reveal">Make collaboration<br /><em>truly intelligent.</em></h2>
+    <p class="reveal">Join 500+ enterprise customers using OpenMoose Agents to eliminate information silos and unlock seamless cross-team coordination.</p>
+    <div class="cta-btns reveal">
+      <a href="#" class="btn btn-primary btn-lg">Start free 14-day trial</a>
+      <a href="#" class="btn btn-ghost btn-lg">Book an enterprise demo ↗</a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="text-decoration:none;">
+          <img src="mascot1.png" alt="OpenMoose" />
+          <span class="logo-text">Open<span>Moose</span></span>
+        </a>
+        <p>Semantic-layer enterprise collaboration AI Agents — making organizations truly intelligent.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Roadmap</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#">Help center</a></li>
+          <li><a href="#">API docs</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 OpenMoose · All rights reserved · Built with ❤ and AI
+    </div>
+  </footer>
+
+  <script>
+    // ===== Custom cursor =====
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .feat-card, .testi-card, .price-card, .wf-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width  = '72px';
+        cursor.style.height = '72px';
+        cursor.style.opacity = '0.6';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width  = '48px';
+        cursor.style.height = '48px';
+        cursor.style.opacity = '1';
+      });
+    });
+
+    // ===== Scroll reveal =====
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal, .stagger').forEach(el => io.observe(el));
+
+    // ===== Card mouse-tracking glow =====
+    document.querySelectorAll('.feat-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      });
+    });
+
+    // ===== Navbar scroll =====
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').style.background =
+        window.scrollY > 50 ? 'rgba(3,3,5,0.9)' : 'rgba(3,3,5,0.6)';
+    });
+
+    // ===== Smooth scroll =====
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+  </script>
+</body>
+</html>
