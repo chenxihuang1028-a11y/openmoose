@@ -398,6 +398,7 @@
       align-items: center;
       justify-content: center;
       transform: translateX(48px);
+      perspective: 800px;
     }
 
     .mascot-aura {
@@ -418,7 +419,9 @@
       filter: blur(40px);
     }
 
-    .mascot-img {
+    .mascot-img { display: none; }
+
+    .mascot-spin-img {
       width: 320px; height: 320px;
       object-fit: contain;
       position: relative;
@@ -431,6 +434,12 @@
       0%, 100% { transform: translateY(0px); }
       50%       { transform: translateY(-16px); }
     }
+
+    @keyframes mascot-orbit {
+      from { transform: rotate(0deg) translateY(-18px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateY(-18px) rotate(-360deg); }
+    }
+
 
     .float-chip {
       position: absolute;
@@ -1093,7 +1102,7 @@
   <!-- ===== NAV ===== -->
   <nav id="navbar">
     <a href="#" class="nav-logo">
-      <img src="mascot1.png" alt="OpenMoose" />
+      <img src="logo.png" alt="OpenMoose" />
       <span class="logo-text">Open<span>Moose</span></span>
     </a>
     <ul class="nav-links">
@@ -1135,7 +1144,7 @@
       <div class="hero-mascot">
         <div class="mascot-aura"></div>
         <div class="mascot-aura-cyan"></div>
-        <img src="mascot1.png" alt="OpenMoose" class="mascot-img" />
+        <img class="mascot-spin-img" src="mascot_spin.webp" alt="OpenMoose">
 
         <!-- top row -->
         <div class="float-chip" style="top:11%; left:18%; animation-delay:-0.5s;">
@@ -1372,7 +1381,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="#" class="nav-logo" style="text-decoration:none;">
-          <img src="mascot1.png" alt="OpenMoose" />
+          <img src="logo.png" alt="OpenMoose" />
           <span class="logo-text">Open<span>Moose</span></span>
         </a>
         <p>Semantic-layer enterprise collaboration AI Agents — making organizations truly intelligent.</p>
@@ -1429,6 +1438,7 @@
         cursor.style.opacity = '1';
       });
     });
+
 
     // ===== Scroll reveal =====
     const io = new IntersectionObserver(entries => {
